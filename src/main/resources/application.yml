@@ -1,0 +1,19 @@
+# Custom application configuration
+application:
+  state:
+    testing: true
+
+# Data source configuration
+spring:
+  datasource:
+    url: jdbc:h2:file:/home/haytham/Data/h2/restfuldb
+    driverClassName: org.h2.Driver
+    username: haytham
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
