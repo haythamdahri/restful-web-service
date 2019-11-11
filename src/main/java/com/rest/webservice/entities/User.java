@@ -18,6 +18,11 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -33,6 +38,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@XmlRootElement(name = "user")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class User {
 
 	/**
@@ -45,13 +52,14 @@ public class User {
 
 	@NotNull(message = "Name cannot be null")
 	@NotEmpty(message = "Name cannot be empty")
+	@Length(min = 2, max = 25, message = "Invalid name length")
 	@Column(name = "name", nullable = false, insertable = true, updatable = true, unique = true)
 	private String name;
 
 	@Past(message = "Invalid birth date")
 	@Temporal(TemporalType.DATE)
-	@Column(name = "birth_date", nullable = false, insertable = true, updatable = true)
-	private Date birthDate;
+	@Column(name = "birthdate", nullable = false, insertable = true, updatable = true)
+	private Date birthdate;
 	
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore

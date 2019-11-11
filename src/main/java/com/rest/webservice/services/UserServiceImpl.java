@@ -1,4 +1,4 @@
-package com.rest.webservice.service;
+package com.rest.webservice.services;
 
 import java.util.Collection;
 
@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.rest.webservice.dao.UserRepository;
 import com.rest.webservice.entities.User;
-import com.rest.webservice.exceptions.InvalidUserException;
 import com.rest.webservice.exceptions.UserNotFoundException;
 
 /**
@@ -24,13 +23,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User saveUser(User user) throws Exception {
-		// Catch the thrown exception
-		try {
-			// Save the user and return the new persisted version of it
-			return this.userRepository.save(user);
-		} catch (Exception ex) {
-			throw new InvalidUserException("Invalid user data");
-		}
+		// Save the user and return the new persisted version of it
+		return this.userRepository.save(user);
 	}
 
 	@Override

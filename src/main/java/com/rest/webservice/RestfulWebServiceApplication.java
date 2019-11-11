@@ -8,7 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.rest.webservice.entities.User;
-import com.rest.webservice.service.UserService;
+import com.rest.webservice.services.UserService;
 
 @SpringBootApplication
 public class RestfulWebServiceApplication implements CommandLineRunner {

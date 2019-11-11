@@ -1,4 +1,4 @@
-package com.rest.webservice.service;
+package com.rest.webservice.services;
 
 import java.util.Collection;
 

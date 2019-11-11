@@ -1,4 +1,4 @@
-package com.rest.webservice.service;
+package com.rest.webservice.services;
 
 import java.util.Collection;
 
@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.rest.webservice.dao.PostRepository;
 import com.rest.webservice.entities.Post;
-import com.rest.webservice.exceptions.InvalidPostException;
 import com.rest.webservice.exceptions.PostNotFoundException;
 
 /**
@@ -24,19 +23,15 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public Post savePost(Post post) throws Exception {
-		// Catch the thrown exception
-		try {
-			// Save the post and return the new persisted version of it
-			return this.postRepository.save(post);
-		} catch (Exception ex) {
-			throw new InvalidPostException("Invalid post data");
-		}
+		// Save the post and return the new persisted version of it
+		return this.postRepository.save(post);
 	}
 
 	@Override
-	public Post getPost(Long id) throws PostNotFoundException{
+	public Post getPost(Long id) throws PostNotFoundException {
 		// Return the retrieved post or null if not found
-		return this.postRepository.findById(id).orElseThrow(() -> new PostNotFoundException("No post has been found with id: " + id));
+		return this.postRepository.findById(id)
+				.orElseThrow(() -> new PostNotFoundException("No post has been found with id: " + id));
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package com.rest.webservice.controllers;
 import java.net.URI;
 import java.util.Date;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.rest.webservice.entities.Post;
-import com.rest.webservice.exceptions.InvalidPostException;
-import com.rest.webservice.exceptions.PostNotFoundException;
-import com.rest.webservice.service.PostService;
+import com.rest.webservice.services.PostService;
 
 import net.minidev.json.JSONObject;
 
@@ -36,7 +36,7 @@ public class PostRestController {
 	/**
 	 * Retrieve posts from database using dao object
 	 */
-	@RequestMapping(path = "posts", method = { RequestMethod.GET})
+	@RequestMapping(path = "posts", method = { RequestMethod.GET })
 	public ResponseEntity<?> getAllPosts() throws Exception {
 		// Fetch all users
 		return new ResponseEntity<Object>(this.postService.getPosts(), HttpStatus.OK);
@@ -47,7 +47,7 @@ public class PostRestController {
 	 * created post uri
 	 */
 	@RequestMapping(path = "posts", method = { RequestMethod.POST, RequestMethod.PUT })
-	public ResponseEntity<?> saveThepost(@RequestBody Post post) throws Exception {
+	public ResponseEntity<?> saveThepost(@Valid @RequestBody Post post) throws Exception {
 		// Persist post
 		post = this.postService.savePost(post);
 		// Build and redirect client to the created post uri
@@ -57,18 +57,18 @@ public class PostRestController {
 	}
 
 	/**
-	 * Retrieve a post from the database using post service object 
+	 * Retrieve a post from the database using post service object
 	 */
-	@RequestMapping(path = "posts/{criteria}", method = {RequestMethod.GET})
-	public ResponseEntity<?> getThePost(@PathVariable(value ="criteria", required = true) String criteria) throws PostNotFoundException{
+	@RequestMapping(path = "posts/{criteria}", method = { RequestMethod.GET })
+	public ResponseEntity<?> getThePost(@PathVariable(value = "criteria", required = true) String criteria)
+			throws Exception {
 		Long postId = null;
 		// Convert criteria into long if possible
 		try {
 			postId = Long.parseLong(criteria);
-		}
-		catch(Exception ex) {
+		} catch (Exception ex) {
 			// Throw an exception of type InvalidPostException
-			throw new InvalidPostException(criteria + " is not a valid post id");
+			throw new Exception(criteria + " is not a valid post id");
 		}
 		// Retrieve post if found
 		Post post = this.postService.getPost(postId);
@@ -81,19 +81,17 @@ public class PostRestController {
 	 */
 	@RequestMapping(path = "posts/{criteria}", method = { RequestMethod.DELETE })
 	public ResponseEntity<?> deleteThePost(@PathVariable(value = "criteria", required = true) String criteria)
-			throws PostNotFoundException {
+			throws Exception {
 		// Convert criteria to PostId
 		Long postId;
 		try {
 			postId = Long.parseLong(criteria);
-		}
-		catch(Exception ex) {
+		} catch (Exception ex) {
 			// throw InvalidPostException
-			throw new InvalidPostException(criteria + " is not a valid post id");
+			throw new Exception(criteria + " is not a valid post id");
 		}
 		/**
-		 * Check if post exists
-		 * An exception will be thrown if post does not exist
+		 * Check if post exists An exception will be thrown if post does not exist
 		 */
 		this.postService.getPost(postId);
 		// Fetch the post using the post service object
@@ -106,7 +104,5 @@ public class PostRestController {
 		// Return json object
 		return new ResponseEntity<Object>(jsonObject, HttpStatus.OK);
 	}
-	
-	
 
 }

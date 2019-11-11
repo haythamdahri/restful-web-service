@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ExceptionResponse {
 
-	private Date timeStamp;
+	private Date timestamp;
 	private String message;
 	private String details;
 	
