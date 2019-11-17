@@ -59,7 +59,7 @@ public class UserAOP {
 			System.out.println(obj.toString());
 		}
 		
-		System.out.println("Calculating consumed time by for the execution");
+		System.out.println("Calculating consumed time for the execution");
         long startTime = System.currentTimeMillis();
 
         // Proceed the method execution

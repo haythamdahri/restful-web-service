@@ -1,19 +1,25 @@
 package com.rest.webservice.controllers;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,14 +33,14 @@ import com.rest.webservice.exceptions.UserNotFoundException;
 import com.rest.webservice.services.PostService;
 import com.rest.webservice.services.UserService;
 
-import javassist.bytecode.stackmap.TypeData.UninitThis;
 import net.minidev.json.JSONObject;
 
 /**
  * @author HAYTHAM DAHRI User Rest ontroller
  */
 @RestController
-@RequestMapping(path = "/", produces = "application/hal+json")
+@RequestMapping(path = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_PLAIN_VALUE})
+@Secured(value = {"ROLE_ADMIN"})
 public class UserRestController {
 
 	/**
@@ -50,6 +56,12 @@ public class UserRestController {
 	private PostService postService;
 
 	/**
+	 * Inject instance of MessageSource class
+	 */
+	@Autowired
+	private MessageSource messageSource;
+
+	/**
 	 * Retrieve users from database using dao object
 	 */
 	@RequestMapping(path = "users", method = { RequestMethod.GET })
@@ -62,14 +74,14 @@ public class UserRestController {
 						entityUser = new EntityModel<>(user,
 								linkTo(methodOn(this.getClass()).getAllUsers()).withRel("all-users"),
 								linkTo(methodOn(this.getClass()).getTheUser(user.getId().toString())).withSelfRel(),
-								linkTo(methodOn(this.getClass()).getUserPosts(user.getId().toString())).withRel("user-posts"));
+								linkTo(methodOn(this.getClass()).getUserPosts(user.getId().toString()))
+										.withRel("user-posts"));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					return entityUser;
-				})
-				.collect(Collectors.toList());
+				}).collect(Collectors.toList());
 		// Fetch all users
 		return new ResponseEntity<Object>(users, HttpStatus.OK);
 	}
@@ -170,6 +182,14 @@ public class UserRestController {
 		Collection<Post> posts = this.postService.getPosts(userId);
 		// Return the response
 		return new ResponseEntity<Object>(posts, HttpStatus.OK);
+	}
+
+	/**
+	 * Hello world internationalized method
+	 */
+	@RequestMapping(path = "hello-world-internationalized", method = RequestMethod.GET)
+	public String helloWorldInternationalized() {
+		return this.messageSource.getMessage("helloworld.message", null, LocaleContextHolder.getLocale());
 	}
 
 }
