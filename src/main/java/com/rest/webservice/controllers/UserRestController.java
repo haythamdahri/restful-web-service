@@ -40,7 +40,7 @@ import net.minidev.json.JSONObject;
  */
 @RestController
 @RequestMapping(path = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_PLAIN_VALUE})
-@Secured(value = {"ROLE_ADMIN"})
+//@Secured(value = {"ROLE_ADMIN"})
 public class UserRestController {
 
 	/**

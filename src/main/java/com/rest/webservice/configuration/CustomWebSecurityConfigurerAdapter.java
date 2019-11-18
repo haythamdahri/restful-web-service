@@ -1,5 +1,7 @@
 package com.rest.webservice.configuration;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -8,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
@@ -26,6 +29,12 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	/**
+	 * Inejct DataSource instance
+	 */
+	@Autowired
+	private DataSource dataSource;
+
+	/**
 	 * Set-up authentication method In memory authentication | Database
 	 * authentication
 	 */
@@ -36,8 +45,21 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
 		 * authentication {noop} prefix to specify that the password is stoed in clear
 		 * => no operation
 		 */
-		auth.inMemoryAuthentication().withUser("haytham").password(this.bCryptPasswordEncoder.encode("toortoor")).roles("USER", "MANAGER", "ADMIN")
-				.and().withUser("imrane").password(this.bCryptPasswordEncoder.encode("toortoor")).roles("MANAGER");
+//		auth.inMemoryAuthentication().withUser("haytham").password(this.bCryptPasswordEncoder.encode("toortoor"))
+//				.roles("USER", "MANAGER", "ADMIN").and().withUser("imrane")
+//				.password(this.bCryptPasswordEncoder.encode("toortoor")).roles("USER", "MANAGER").and().withUser("user")
+//				.password(this.bCryptPasswordEncoder.encode("toortoor")).roles("USER");
+
+		// Database authentication
+		auth.jdbcAuthentication().dataSource(this.dataSource)
+				// Custom query only for H2 database
+				.usersByUsernameQuery(
+						"select username as principal, password as credentials, true from users where username=?")
+				.authoritiesByUsernameQuery(
+						"select username as principal, rolename as role from users_roles where username=?")
+				.passwordEncoder(this.bCryptPasswordEncoder)
+				// When roles are stored directly => ADMIN, USER, MANAGER
+				.rolePrefix("ROLE_");
 	}
 
 	/**
@@ -55,9 +77,15 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
 	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		// Enable basic security
-		http.httpBasic().and().authorizeRequests().anyRequest().authenticated().and().csrf().disable()
-				.headers().frameOptions().disable();
+		/*
+		 * Enable basic security Protect /users resource only for admins
+		 */
+
+		http.httpBasic().and().authorizeRequests().antMatchers("/h2-console/**").permitAll().antMatchers("/users")
+				.hasRole("ADMIN").anyRequest().authenticated().and().csrf().disable().headers().frameOptions().disable()
+				// Disable session authentication, require credentials for each request or a JWT
+				// token if already configured
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 
 }
